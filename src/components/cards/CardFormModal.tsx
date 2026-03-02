@@ -38,14 +38,8 @@ export default function CardFormModal({ groups }: CardFormModalProps) {
           setCodeType(card.codeType);
         }
       });
-    } else {
-      setName("");
-      setGroupId(selectedGroupId ?? "");
-      setInitialAmount("");
-      setCode("");
-      setCodeType("qr");
     }
-  }, [editingId, open, selectedGroupId]);
+  }, [editingId]);
 
   const handleScan = useCallback(
     (value: string, codeType: "qr" | "barcode") => {
@@ -122,6 +116,12 @@ export default function CardFormModal({ groups }: CardFormModalProps) {
   function close() {
     setOpen(false);
     setEditingId(null);
+    setName("");
+    setGroupId(selectedGroupId ?? "");
+    setInitialAmount("");
+    setCode("");
+    setCodeType("qr");
+    setImageError("");
   }
 
   async function handleSubmit(e: React.FormEvent) {

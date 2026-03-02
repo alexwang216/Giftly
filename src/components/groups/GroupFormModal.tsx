@@ -26,17 +26,16 @@ export default function GroupFormModal() {
           setIcon(group.icon);
         }
       });
-    } else {
-      setName("");
-      setIcon("🎁");
     }
-  }, [editingId, open]);
+  }, [editingId]);
 
   if (!open) return null;
 
   function close() {
     setOpen(false);
     setEditingId(null);
+    setName("");
+    setIcon("🎁");
   }
 
   async function handleSubmit(e: React.FormEvent) {
