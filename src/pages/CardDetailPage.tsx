@@ -5,6 +5,7 @@ import { db } from "../db/db";
 import { useCards } from "../hooks/useCards";
 import { useTransactions } from "../hooks/useTransactions";
 import { useAppStore } from "../store/useAppStore";
+import { decryptCode } from "../lib/crypto";
 import CodeDisplay from "../components/code-display/CodeDisplay";
 import TransactionTable from "../components/transactions/TransactionTable";
 import TransactionFormModal from "../components/transactions/TransactionFormModal";
@@ -14,7 +15,11 @@ export default function CardDetailPage() {
   const navigate = useNavigate();
   const id = Number(cardId);
 
-  const card = useLiveQuery(() => db.cards.get(id), [id]);
+  const card = useLiveQuery(async () => {
+    const raw = await db.cards.get(id);
+    if (!raw) return undefined;
+    return { ...raw, code: await decryptCode(raw.code) };
+  }, [id]);
   const { transactions, addTransaction, computeBalance } = useTransactions(id);
   const { deleteCard } = useCards(null);
 

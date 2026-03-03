@@ -3,6 +3,7 @@ import { Html5Qrcode } from "html5-qrcode";
 import { useAppStore } from "../../store/useAppStore";
 import { useCards } from "../../hooks/useCards";
 import { db } from "../../db/db";
+import { decryptCode } from "../../lib/crypto";
 import type { Group } from "../../types";
 
 const CodeScanner = lazy(() => import("../scanner/CodeScanner"));
@@ -29,12 +30,12 @@ export default function CardFormModal({ groups }: CardFormModalProps) {
 
   useEffect(() => {
     if (editingId !== null) {
-      db.cards.get(editingId).then((card) => {
+      db.cards.get(editingId).then(async (card) => {
         if (card) {
           setName(card.name);
           setGroupId(card.groupId);
           setInitialAmount(card.initialAmount.toString());
-          setCode(card.code);
+          setCode(await decryptCode(card.code));
           setCodeType(card.codeType);
         }
       });
