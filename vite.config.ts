@@ -4,6 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
+  base: "/Giftly/",
   build: {
     rollupOptions: {
       output: {
@@ -27,8 +28,8 @@ export default defineConfig({
         theme_color: "#6366f1",
         background_color: "#0f172a",
         display: "standalone",
-        scope: "/",
-        start_url: "/",
+        scope: "/Giftly/",
+        start_url: "/Giftly/",
         icons: [
           {
             src: "pwa-192x192.png",
