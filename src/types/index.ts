@@ -22,3 +22,15 @@ export interface Transaction {
   amount: number;
   date: Date;
 }
+
+export interface GiftlyExportFile {
+  version: 1;
+  exportedAt: string;
+  data: {
+    groups: Omit<Group, "id">[];
+    cards: (Omit<Card, "id" | "groupId"> & { groupIndex: number })[];
+    transactions: (Omit<Transaction, "id" | "cardId"> & {
+      cardIndex: number;
+    })[];
+  };
+}

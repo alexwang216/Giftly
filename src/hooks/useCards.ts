@@ -1,23 +1,36 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../db/db";
 import type { Card } from "../types";
+import { encryptCode, decryptCode } from "../lib/crypto";
 
 export function useCards(groupId: number | null) {
   const cards =
-    useLiveQuery(() => {
-      if (groupId === null) return db.cards.toArray();
-      return db.cards.where("groupId").equals(groupId).toArray();
+    useLiveQuery(async () => {
+      const raw =
+        groupId === null
+          ? await db.cards.toArray()
+          : await db.cards.where("groupId").equals(groupId).toArray();
+      return Promise.all(
+        raw.map(async (card) => ({
+          ...card,
+          code: await decryptCode(card.code),
+        })),
+      );
     }, [groupId]) ?? [];
 
   async function addCard(card: Omit<Card, "id">) {
-    return db.cards.add(card);
+    return db.cards.add({ ...card, code: await encryptCode(card.code) });
   }
 
   async function updateCard(
     id: number,
     changes: Partial<Omit<Card, "id">>,
   ) {
-    return db.cards.update(id, changes);
+    const toUpdate = { ...changes };
+    if (toUpdate.code !== undefined) {
+      toUpdate.code = await encryptCode(toUpdate.code);
+    }
+    return db.cards.update(id, toUpdate);
   }
 
   async function deleteCard(id: number) {
