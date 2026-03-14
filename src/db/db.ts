@@ -16,7 +16,7 @@ export class GiftlyDB extends Dexie {
     });
 
     this.version(2).upgrade((t) => {
-      return t.table("cards").toCollection().modify((card: any) => {
+      return t.table("cards").toCollection().modify((card: Card) => {
         if (!card.type) {
           card.type = "gift";
         }
