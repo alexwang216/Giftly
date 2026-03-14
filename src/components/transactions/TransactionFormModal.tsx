@@ -68,6 +68,8 @@ export default function TransactionFormModal({
             </label>
             <input
               type="number"
+              inputMode="decimal"
+              pattern="[0-9]*"
               min="0.01"
               step="0.01"
               value={amount}
