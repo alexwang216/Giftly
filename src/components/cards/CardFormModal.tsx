@@ -25,8 +25,23 @@ export default function CardFormModal({ groups }: CardFormModalProps) {
   const [initialAmount, setInitialAmount] = useState("");
   const [code, setCode] = useState("");
   const [codeType, setCodeType] = useState<"qr" | "barcode">("qr");
+  const [type, setType] = useState<"gift" | "membership">("gift");
   const [scanning, setScanning] = useState(false);
   const [imageError, setImageError] = useState("");
+  const [submitError, setSubmitError] = useState("");
+
+  const [prevOpen, setPrevOpen] = useState(open);
+  if (open !== prevOpen) {
+    setPrevOpen(open);
+    if (open && editingId === null) {
+      setGroupId(selectedGroupId ?? "");
+      const groupName = groups.find((g) => g.id === selectedGroupId)?.name;
+      const now = new Date();
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const dd = String(now.getDate()).padStart(2, "0");
+      setName(`${groupName} ${mm}${dd}`);
+    }
+  }
 
   useEffect(() => {
     if (editingId !== null) {
@@ -37,6 +52,7 @@ export default function CardFormModal({ groups }: CardFormModalProps) {
           setInitialAmount(card.initialAmount.toString());
           setCode(await decryptCode(card.code));
           setCodeType(card.codeType);
+          setType(card.type || "gift");
         }
       });
     }
@@ -122,28 +138,36 @@ export default function CardFormModal({ groups }: CardFormModalProps) {
     setInitialAmount("");
     setCode("");
     setCodeType("qr");
+    setType("gift");
     setImageError("");
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim() || groupId === "" || !code.trim()) return;
+    if (!name.trim() || groupId === "" || !code.trim()) {
+      setSubmitError("Please fill in all required fields.");
+      return;
+    }
+    setSubmitError("");
     const amount = parseFloat(initialAmount) || 0;
+    const groupName = groups.find((g) => g.id === groupId)!.name;
     if (editingId !== null) {
       await updateCard(editingId, {
-        name: name.trim(),
+        name: type === "gift" ? name.trim() : groupName,
         groupId: groupId as number,
-        initialAmount: amount,
+        initialAmount: type === "membership" ? 0 : amount,
         code: code.trim(),
         codeType,
+        type,
       });
     } else {
       await addCard({
-        name: name.trim(),
+        name: type === "gift" ? name.trim() : groupName,
         groupId: groupId as number,
-        initialAmount: amount,
+        initialAmount: type === "membership" ? 0 : amount,
         code: code.trim(),
         codeType,
+        type,
       });
     }
     close();
@@ -157,7 +181,7 @@ export default function CardFormModal({ groups }: CardFormModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/60" onClick={close}>
+    <div className="modal-overlay" onClick={close}>
       <div
         className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-white p-6 dark:bg-slate-800"
         onClick={(e) => e.stopPropagation()}
@@ -166,20 +190,27 @@ export default function CardFormModal({ groups }: CardFormModalProps) {
           {editingId !== null ? "Edit Card" : "New Card"}
         </h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div>
-            <label className="mb-1 block text-sm text-slate-500 dark:text-slate-400">Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Starbucks Gift Card"
-              className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500"
-              autoFocus
-            />
-          </div>
+          {submitError && (
+            <div className="rounded-lg bg-rose-500/10 p-2 text-rose-500 dark:bg-rose-500/10 dark:text-rose-400">
+              <p>{submitError}</p>
+            </div>
+          )}
+          {type === "gift" && (
+            <div>
+              <label className="form-label">Name<span className="form-mandatory">*</span></label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. Starbucks Gift Card"
+                className="form-input"
+                autoFocus
+              />
+            </div>
+          )}
 
           <div>
-            <label className="mb-1 block text-sm text-slate-500 dark:text-slate-400">Group</label>
+            <label className="form-label">Group<span className="form-mandatory">*</span></label>
             <select
               value={groupId}
               onChange={(e) =>
@@ -197,23 +228,55 @@ export default function CardFormModal({ groups }: CardFormModalProps) {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm text-slate-500 dark:text-slate-400">
-              Initial Amount ($)
-            </label>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              value={initialAmount}
-              onChange={(e) => setInitialAmount(e.target.value)}
-              placeholder="50.00"
-              className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500"
-            />
+            <label className="form-label">Card Type</label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setType("gift")}
+                className={`flex-1 rounded-lg px-4 py-2 font-medium ${type === "gift"
+                  ? "bg-indigo-500 text-white"
+                  : "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                  }`}
+              >
+                Gift Card
+              </button>
+              <button
+                type="button"
+                onClick={() => setType("membership")}
+                className={`flex-1 rounded-lg px-4 py-2 font-medium ${type === "membership"
+                  ? "bg-indigo-500 text-white"
+                  : "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                  }`}
+              >
+                Membership Card
+              </button>
+            </div>
           </div>
 
+          {type === "gift" && (
+            <div>
+              <label className="form-label">
+                Initial Amount (£)
+                <span className="form-mandatory">*</span>
+              </label>
+              <input
+                type="number"
+                inputMode="decimal"
+                pattern="[0-9]*"
+                min="0"
+                step="0.01"
+                value={initialAmount}
+                onChange={(e) => setInitialAmount(e.target.value)}
+                placeholder="50.00"
+                className="form-input"
+              />
+            </div>
+          )}
+
           <div>
-            <label className="mb-1 block text-sm text-slate-500 dark:text-slate-400">
+            <label className="form-label">
               Card Code
+              <span className="form-mandatory">*</span>
             </label>
             <div className="flex gap-2">
               <div className="relative min-w-0 flex-1">
@@ -267,29 +330,27 @@ export default function CardFormModal({ groups }: CardFormModalProps) {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm text-slate-500 dark:text-slate-400">
+            <label className="form-label">
               Code Type
             </label>
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => setCodeType("qr")}
-                className={`flex-1 rounded-lg px-4 py-2 font-medium ${
-                  codeType === "qr"
-                    ? "bg-indigo-500 text-white"
-                    : "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
-                }`}
+                className={`flex-1 rounded-lg px-4 py-2 font-medium ${codeType === "qr"
+                  ? "bg-indigo-500 text-white"
+                  : "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                  }`}
               >
                 QR Code
               </button>
               <button
                 type="button"
                 onClick={() => setCodeType("barcode")}
-                className={`flex-1 rounded-lg px-4 py-2 font-medium ${
-                  codeType === "barcode"
-                    ? "bg-indigo-500 text-white"
-                    : "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
-                }`}
+                className={`flex-1 rounded-lg px-4 py-2 font-medium ${codeType === "barcode"
+                  ? "bg-indigo-500 text-white"
+                  : "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                  }`}
               >
                 Barcode
               </button>
@@ -301,7 +362,7 @@ export default function CardFormModal({ groups }: CardFormModalProps) {
               <button
                 type="button"
                 onClick={handleDelete}
-                className="rounded-lg bg-rose-500 px-4 py-2 font-semibold text-white hover:bg-rose-600"
+                className="btn-danger"
               >
                 Delete
               </button>
@@ -310,13 +371,13 @@ export default function CardFormModal({ groups }: CardFormModalProps) {
             <button
               type="button"
               onClick={close}
-              className="rounded-lg px-4 py-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+              className="btn-secondary"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="rounded-lg bg-indigo-500 px-4 py-2 font-semibold text-white hover:bg-indigo-600"
+              className="btn-primary"
             >
               {editingId !== null ? "Save" : "Add"}
             </button>

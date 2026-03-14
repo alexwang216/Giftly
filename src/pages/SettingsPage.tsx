@@ -67,7 +67,7 @@ export default function SettingsPage() {
       <div className="flex items-center justify-between">
         <button
           onClick={() => navigate("/")}
-          className="text-indigo-400 hover:underline"
+          className="text-primary hover:underline"
         >
           &larr; Back
         </button>
@@ -75,9 +75,9 @@ export default function SettingsPage() {
 
       <h1 className="text-2xl font-bold">Settings</h1>
 
-      <section className="rounded-xl bg-white p-4 shadow-sm dark:bg-slate-800">
+      <section className="rounded-xl bg-surface p-4 shadow-sm">
         <h2 className="mb-3 text-lg font-semibold">Data Management</h2>
-        <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
+        <p className="mb-4 text-sm text-text-muted">
           Export your data as a JSON file for backup or transfer to another
           device. On iOS, save the file to iCloud Drive for automatic sync.
           Importing will add data alongside your existing cards.
@@ -86,14 +86,14 @@ export default function SettingsPage() {
           <button
             onClick={handleExport}
             disabled={exporting}
-            className="w-full rounded-lg bg-indigo-500 py-3 font-semibold text-white hover:bg-indigo-600 active:bg-indigo-700 disabled:opacity-50"
+            className="w-full rounded-lg bg-primary py-3 font-semibold text-white hover:bg-primary-hover disabled:opacity-50"
           >
             {exporting ? "Exporting..." : "Export Data"}
           </button>
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={importing}
-            className="w-full rounded-lg border-2 border-indigo-500 py-3 font-semibold text-indigo-500 hover:bg-indigo-50 active:bg-indigo-100 dark:hover:bg-indigo-500/10 dark:active:bg-indigo-500/20 disabled:opacity-50"
+            className="w-full rounded-lg border-2 border-primary py-3 font-semibold text-primary hover:bg-primary/10 disabled:opacity-50"
           >
             {importing ? "Importing..." : "Import Data"}
           </button>
@@ -111,8 +111,8 @@ export default function SettingsPage() {
         <div
           className={`rounded-xl p-4 text-sm ${
             status.type === "success"
-              ? "bg-emerald-500/10 text-emerald-500"
-              : "bg-rose-500/10 text-rose-400"
+              ? "bg-success/10 text-success"
+              : "bg-danger/10 text-danger"
           }`}
         >
           {status.message}

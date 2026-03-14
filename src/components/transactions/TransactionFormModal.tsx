@@ -53,7 +53,7 @@ export default function TransactionFormModal({
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/60" onClick={close}>
+    <div className="modal-overlay" onClick={close}>
       <div
         className="w-full max-w-lg rounded-t-2xl bg-white p-6 dark:bg-slate-800"
         onClick={(e) => e.stopPropagation()}
@@ -63,7 +63,7 @@ export default function TransactionFormModal({
         </h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="mb-1 block text-sm text-slate-500 dark:text-slate-400">
+            <label className="form-label">
               Amount ($)
             </label>
             <input
@@ -76,7 +76,7 @@ export default function TransactionFormModal({
                 setError("");
               }}
               placeholder="0.00"
-              className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500"
+              className="form-input"
               autoFocus
             />
             {type === "use" && (
@@ -91,17 +91,15 @@ export default function TransactionFormModal({
             <button
               type="button"
               onClick={close}
-              className="rounded-lg px-4 py-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+              className="btn-secondary"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className={`rounded-lg px-4 py-2 font-semibold text-white ${
-                type === "use"
-                  ? "bg-rose-500 hover:bg-rose-600"
-                  : "bg-emerald-500 hover:bg-emerald-600"
-              }`}
+              className={
+                type === "use" ? "btn-danger" : "btn-success"
+              }
             >
               {type === "use" ? "Use" : "Reload"}
             </button>

@@ -19,6 +19,7 @@ export async function exportData(): Promise<GiftlyExportFile> {
       initialAmount: card.initialAmount,
       code: await decryptCode(card.code),
       codeType: card.codeType,
+      type: card.type,
       groupIndex: groupIdToIndex.get(card.groupId) ?? 0,
     })),
   );
@@ -93,6 +94,7 @@ export async function importData(
           initialAmount: card.initialAmount,
           code: await encryptCode(card.code),
           codeType: card.codeType,
+          type: card.type || "gift",
           groupId,
         })) as number;
         newCardIds.push(id);

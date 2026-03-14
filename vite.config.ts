@@ -8,8 +8,10 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          scanner: ["html5-qrcode"],
+        manualChunks(id) {
+          if (id.includes("html5-qrcode")) {
+            return "scanner";
+          }
         },
       },
     },

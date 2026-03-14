@@ -45,7 +45,7 @@ export default function GroupList({ groups }: GroupListProps) {
         <button
           type="button"
           onClick={() => setGroupModalOpen(true)}
-          className="flex shrink-0 items-center gap-1 rounded-full bg-slate-200 px-4 py-2 text-sm font-medium text-slate-500 hover:bg-slate-300 hover:text-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white"
+          className="flex shrink-0 items-center gap-1 rounded-full bg-surface-active px-4 py-2 text-sm font-medium text-text-muted hover:bg-border-strong hover:text-text-main"
         >
           <span>+</span>
           <span>Group</span>
@@ -54,29 +54,29 @@ export default function GroupList({ groups }: GroupListProps) {
 
       {confirmDeleteId !== null && (
         <div
-          className="fixed inset-0 z-40 flex items-center justify-center bg-black/60"
+          className="modal-overlay"
           onClick={() => setConfirmDeleteId(null)}
         >
           <div
-            className="mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-800"
+            className="mx-4 w-full max-w-sm rounded-2xl bg-surface p-6 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-bold">Delete Group</h3>
-            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            <h3 className="text-lg font-bold text-text-main">Delete Group</h3>
+            <p className="mt-2 text-sm text-text-muted">
               This will also delete all cards and transactions in this group. Are you sure?
             </p>
             <div className="mt-4 flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setConfirmDeleteId(null)}
-                className="rounded-lg px-4 py-2 text-sm text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                className="btn-secondary"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={() => handleDeleteGroup(confirmDeleteId)}
-                className="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-600"
+                className="btn-danger"
               >
                 Delete
               </button>

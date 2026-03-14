@@ -32,10 +32,10 @@ export default function CardDetailPage() {
 
   if (!card) {
     return (
-      <div className="p-4 text-slate-500 dark:text-slate-400">
+      <div className="p-4 text-text-muted">
         <button
           onClick={() => navigate("/")}
-          className="text-indigo-400 hover:underline"
+          className="text-primary hover:underline"
         >
           &larr; Back
         </button>
@@ -56,14 +56,14 @@ export default function CardDetailPage() {
       <div className="flex items-center justify-between">
         <button
           onClick={() => navigate("/")}
-          className="text-indigo-400 hover:underline"
+          className="text-primary hover:underline"
         >
           &larr; Back
         </button>
         {!confirmDelete ? (
           <button
             onClick={() => setConfirmDelete(true)}
-            className="rounded-lg p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-500/10"
+            className="rounded-lg p-2 text-text-muted hover:bg-danger/10 hover:text-danger"
             aria-label="Delete card"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -75,16 +75,16 @@ export default function CardDetailPage() {
           </button>
         ) : (
           <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-500 dark:text-slate-400">Delete?</span>
+            <span className="text-sm text-text-muted">Delete?</span>
             <button
               onClick={handleDelete}
-              className="rounded-lg bg-rose-500 px-3 py-1 text-sm font-semibold text-white hover:bg-rose-600"
+              className="btn-danger !px-3 !py-1 !text-sm"
             >
               Yes
             </button>
             <button
               onClick={() => setConfirmDelete(false)}
-              className="rounded-lg px-3 py-1 text-sm text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+              className="btn-secondary !px-3 !py-1 !text-sm"
             >
               No
             </button>
@@ -96,48 +96,52 @@ export default function CardDetailPage() {
 
       <CodeDisplay value={card.code} type={card.codeType} />
 
-      <div className="text-center">
-        <p className="text-sm text-slate-500 dark:text-slate-400">Remaining Balance</p>
-        <p
-          className={`text-3xl font-bold ${
-            balance > 0 ? "text-emerald-500 dark:text-emerald-400" : "text-rose-500 dark:text-rose-400"
-          }`}
-        >
-          ${balance.toFixed(2)}
-        </p>
-      </div>
+      {card.type !== "membership" && (
+        <>
+          <div className="text-center">
+            <p className="text-sm text-text-muted">Remaining Balance</p>
+            <p
+              className={`text-3xl font-bold ${
+                balance > 0 ? "text-success" : "text-danger"
+              }`}
+            >
+              ${balance.toFixed(2)}
+            </p>
+          </div>
 
-      <div className="flex gap-3">
-        <button
-          className="flex-1 rounded-lg bg-emerald-500 py-3 font-semibold text-white hover:bg-emerald-600 active:bg-emerald-700"
-          onClick={() => {
-            setTransactionType("reload");
-            setTransactionModalOpen(true);
-          }}
-        >
-          Reload
-        </button>
-        <button
-          className="flex-1 rounded-lg bg-rose-500 py-3 font-semibold text-white hover:bg-rose-600 active:bg-rose-700"
-          onClick={() => {
-            setTransactionType("use");
-            setTransactionModalOpen(true);
-          }}
-        >
-          Use
-        </button>
-      </div>
+          <div className="flex gap-3">
+            <button
+              className="btn-success flex-1 py-3"
+              onClick={() => {
+                setTransactionType("reload");
+                setTransactionModalOpen(true);
+              }}
+            >
+              Reload
+            </button>
+            <button
+              className="btn-danger flex-1 py-3"
+              onClick={() => {
+                setTransactionType("use");
+                setTransactionModalOpen(true);
+              }}
+            >
+              Use
+            </button>
+          </div>
 
-      <div>
-        <h2 className="mb-3 text-lg font-semibold">Transactions</h2>
-        <TransactionTable transactions={transactions} />
-      </div>
+          <div>
+            <h2 className="mb-3 text-lg font-semibold">Transactions</h2>
+            <TransactionTable transactions={transactions} />
+          </div>
 
-      <TransactionFormModal
-        cardId={id}
-        balance={balance}
-        onAdd={addTransaction}
-      />
+          <TransactionFormModal
+            cardId={id}
+            balance={balance}
+            onAdd={addTransaction}
+          />
+        </>
+      )}
     </div>
   );
 }

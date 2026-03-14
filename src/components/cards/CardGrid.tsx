@@ -11,9 +11,15 @@ export default function CardGrid({ cards }: CardGridProps) {
   const balanceMap = useCardBalances(cards);
   const setCardModalOpen = useAppStore((s) => s.setCardModalOpen);
 
+  const sortedCards = [...cards].sort((a, b) => {
+    if (a.type === "membership" && b.type !== "membership") return -1;
+    if (b.type === "membership" && a.type !== "membership") return 1;
+    return 0;
+  });
+
   return (
     <div className="grid grid-cols-2 gap-3">
-      {cards.map((card) => (
+      {sortedCards.map((card) => (
         <CardItem
           key={card.id}
           card={card}
@@ -23,7 +29,7 @@ export default function CardGrid({ cards }: CardGridProps) {
       <button
         type="button"
         onClick={() => setCardModalOpen(true)}
-        className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 p-4 text-slate-400 transition-colors hover:border-slate-400 hover:text-slate-500 dark:border-slate-700 dark:text-slate-500 dark:hover:border-slate-600 dark:hover:text-slate-400"
+        className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-border-strong p-4 text-text-muted transition-colors hover:border-text-muted hover:text-text-subtle"
       >
         <span className="text-2xl">+</span>
         <span className="mt-1 text-sm">Add Card</span>

@@ -11,6 +11,7 @@ export interface Card {
   initialAmount: number;
   code: string;
   codeType: "qr" | "barcode";
+  type: "gift" | "membership";
 }
 
 export type TransactionType = "use" | "reload";
