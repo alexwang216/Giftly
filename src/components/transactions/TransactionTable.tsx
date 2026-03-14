@@ -19,17 +19,17 @@ export default function TransactionTable({
 }: TransactionTableProps) {
   if (transactions.length === 0) {
     return (
-      <div className="rounded-xl bg-white p-6 text-center text-slate-400 shadow-sm dark:bg-slate-800 dark:text-slate-500">
+      <div className="rounded-xl bg-surface p-6 text-center text-text-muted shadow-sm">
         No transactions yet
       </div>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-xl bg-white shadow-sm dark:bg-slate-800">
+    <div className="overflow-hidden rounded-xl bg-surface shadow-sm">
       <table className="w-full">
         <thead>
-          <tr className="border-b border-slate-200 text-left text-xs text-slate-500 dark:border-slate-700 dark:text-slate-400">
+          <tr className="border-b border-border-base text-left text-xs text-text-muted">
             <th className="px-4 py-3">Date</th>
             <th className="px-4 py-3">Type</th>
             <th className="px-4 py-3 text-right">Amount</th>
@@ -39,17 +39,17 @@ export default function TransactionTable({
           {transactions.map((tx) => (
             <tr
               key={tx.id}
-              className="border-b border-slate-100 last:border-0 dark:border-slate-700/50"
+              className="border-b border-border-base last:border-0"
             >
-              <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">
+              <td className="px-4 py-3 text-sm text-text-subtle">
                 {formatDate(tx.date)}
               </td>
               <td className="px-4 py-3">
                 <span
                   className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
                     tx.type === "reload"
-                      ? "bg-emerald-500/20 text-emerald-400"
-                      : "bg-rose-500/20 text-rose-400"
+                      ? "bg-success/20 text-success-hover"
+                      : "bg-danger/20 text-danger-hover"
                   }`}
                 >
                   {tx.type === "reload" ? "Reload" : "Use"}
@@ -57,7 +57,7 @@ export default function TransactionTable({
               </td>
               <td
                 className={`px-4 py-3 text-right text-sm font-medium ${
-                  tx.type === "reload" ? "text-emerald-400" : "text-rose-400"
+                  tx.type === "reload" ? "text-success-hover" : "text-danger-hover"
                 }`}
               >
                 {tx.type === "reload" ? "+" : "-"}${tx.amount.toFixed(2)}

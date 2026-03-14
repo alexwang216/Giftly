@@ -54,13 +54,13 @@ export default function CodeScanner({ onScan, onClose }: CodeScannerProps) {
   }, [onScan]);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-black">
+    <div className="fixed inset-0 z-50 flex flex-col bg-slate-900">
       <div className="flex items-center justify-between p-4">
         <h2 className="text-lg font-bold text-white">Scan Code</h2>
         <button
           type="button"
           onClick={onClose}
-          className="rounded-lg bg-slate-800 px-4 py-2 text-sm text-white hover:bg-slate-700"
+          className="rounded-lg bg-surface px-4 py-2 text-sm text-text-main hover:bg-surface-hover"
         >
           Cancel
         </button>
@@ -69,7 +69,7 @@ export default function CodeScanner({ onScan, onClose }: CodeScannerProps) {
         <div id="code-scanner-region" className="w-full max-w-md" />
       </div>
       {error && (
-        <p className="p-4 text-center text-sm text-rose-400">{error}</p>
+        <p className="p-4 text-center text-sm text-danger-hover">{error}</p>
       )}
     </div>
   );

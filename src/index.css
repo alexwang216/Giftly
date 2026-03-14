@@ -2,12 +2,107 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* 1. Define semantic variables using Tailwind's core color variables */
+:root {
+  --theme-bg: var(--color-slate-100);
+  --theme-surface: var(--color-white);
+  --theme-surface-subtle: var(--color-slate-50);
+  --theme-surface-hover: var(--color-slate-100);
+  --theme-surface-active: var(--color-slate-200);
+
+  --theme-text-main: var(--color-slate-900);
+  --theme-text-subtle: var(--color-slate-600);
+  --theme-text-muted: var(--color-slate-500);
+
+  --theme-border-base: var(--color-slate-200);
+  --theme-border-strong: var(--color-slate-300);
+
+  --theme-primary: var(--color-indigo-500);
+  --theme-primary-hover: var(--color-indigo-600);
+  --theme-danger: var(--color-rose-500);
+  --theme-danger-hover: var(--color-rose-600);
+  --theme-success: var(--color-emerald-500);
+  --theme-success-hover: var(--color-emerald-600);
+}
+
+/* 2. Swap them out in dark mode */
+.dark {
+  --theme-bg: var(--color-slate-900);
+  --theme-surface: var(--color-slate-800);
+  --theme-surface-subtle: var(--color-slate-700);
+  --theme-surface-hover: var(--color-slate-700);
+  --theme-surface-active: var(--color-slate-600);
+
+  --theme-text-main: var(--color-white);
+  --theme-text-subtle: var(--color-slate-300);
+  --theme-text-muted: var(--color-slate-400);
+
+  --theme-border-base: var(--color-slate-700);
+  --theme-border-strong: var(--color-slate-600);
+
+  --theme-primary: var(--color-indigo-500);
+  --theme-primary-hover: var(--color-indigo-400);
+  --theme-danger: var(--color-rose-400);
+  --theme-danger-hover: var(--color-rose-500);
+  --theme-success: var(--color-emerald-400);
+  --theme-success-hover: var(--color-emerald-500);
+}
+
 @theme {
-  --color-primary: #6366f1;
-  --color-primary-light: #818cf8;
-  --color-surface: #1e293b;
-  --color-surface-dark: #0f172a;
-  --color-surface-light: #334155;
+  /* 3. Inject them into Tailwind's color system */
+  --color-bg: var(--theme-bg);
+  --color-surface: var(--theme-surface);
+  --color-surface-subtle: var(--theme-surface-subtle);
+  --color-surface-hover: var(--theme-surface-hover);
+  --color-surface-active: var(--theme-surface-active);
+
+  --color-text-main: var(--theme-text-main);
+  --color-text-subtle: var(--theme-text-subtle);
+  --color-text-muted: var(--theme-text-muted);
+
+  --color-border-base: var(--theme-border-base);
+  --color-border-strong: var(--theme-border-strong);
+
+  --color-primary: var(--theme-primary);
+  --color-primary-hover: var(--theme-primary-hover);
+  --color-danger: var(--theme-danger);
+  --color-danger-hover: var(--theme-danger-hover);
+  --color-success: var(--theme-success);
+  --color-success-hover: var(--theme-success-hover);
+}
+
+@layer components {
+  .form-label {
+    @apply mb-1 block text-sm text-text-muted;
+  }
+
+  .form-mandatory {
+    @apply text-danger;
+  }
+
+  .form-input {
+    @apply w-full rounded-lg border border-border-strong bg-surface-subtle px-3 py-2 text-text-main placeholder-text-muted focus:border-primary focus:outline-none;
+  }
+
+  .btn-primary {
+    @apply rounded-lg bg-primary px-4 py-2 font-semibold text-white hover:bg-primary-hover;
+  }
+
+  .btn-danger {
+    @apply rounded-lg bg-danger px-4 py-2 font-semibold text-white hover:bg-danger-hover;
+  }
+
+  .btn-success {
+    @apply rounded-lg bg-success px-4 py-2 font-semibold text-white hover:bg-success-hover;
+  }
+
+  .btn-secondary {
+    @apply rounded-lg px-4 py-2 text-text-muted hover:text-text-main;
+  }
+
+  .modal-overlay {
+    @apply fixed inset-0 z-40 flex items-end justify-center bg-black/60;
+  }
 }
 
 html {

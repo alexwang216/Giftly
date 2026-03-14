@@ -57,7 +57,7 @@ export default function GroupFormModal() {
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/60" onClick={close}>
+    <div className="modal-overlay" onClick={close}>
       <div
         className="w-full max-w-lg rounded-t-2xl bg-white p-6 dark:bg-slate-800"
         onClick={(e) => e.stopPropagation()}
@@ -67,18 +67,18 @@ export default function GroupFormModal() {
         </h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="mb-1 block text-sm text-slate-500 dark:text-slate-400">Name</label>
+            <label className="form-label">Name</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Coffee Shops"
-              className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500"
+              className="form-input"
               autoFocus
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm text-slate-500 dark:text-slate-400">Icon</label>
+            <label className="form-label">Icon</label>
             <div className="flex flex-wrap gap-2">
               {EMOJI_OPTIONS.map((emoji) => (
                 <button
@@ -101,7 +101,7 @@ export default function GroupFormModal() {
               <button
                 type="button"
                 onClick={handleDelete}
-                className="rounded-lg bg-rose-500 px-4 py-2 font-semibold text-white hover:bg-rose-600"
+                className="btn-danger"
               >
                 Delete
               </button>
@@ -110,13 +110,13 @@ export default function GroupFormModal() {
             <button
               type="button"
               onClick={close}
-              className="rounded-lg px-4 py-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+              className="btn-secondary"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="rounded-lg bg-indigo-500 px-4 py-2 font-semibold text-white hover:bg-indigo-600"
+              className="btn-primary"
             >
               {editingId !== null ? "Save" : "Add"}
             </button>
