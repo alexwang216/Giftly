@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Html5Qrcode } from "html5-qrcode";
+import { scanImageData, ZBarSymbolType } from "@undecaf/zbar-wasm";
 
 interface CodeScannerProps {
   onScan: (value: string, codeType: "qr" | "barcode") => void;
@@ -7,49 +7,90 @@ interface CodeScannerProps {
 }
 
 export default function CodeScanner({ onScan, onClose }: CodeScannerProps) {
-  const scannerRef = useRef<Html5Qrcode | null>(null);
-  const runningRef = useRef(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
     let cancelled = false;
-    const scanner = new Html5Qrcode("code-scanner-region");
-    scannerRef.current = scanner;
+    let stream: MediaStream | null = null;
+    let animFrameId = 0;
 
-    scanner
-      .start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        (decodedText, decodedResult) => {
-          runningRef.current = false;
-          scanner.stop().catch(() => {});
-          if (!cancelled) {
-            const isQr =
-              decodedResult?.result?.format?.formatName === "QR_CODE";
-            onScan(decodedText, isQr ? "qr" : "barcode");
-          }
-        },
-        () => {},
-      )
-      .then(() => {
+    const startCamera = async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment" },
+        });
         if (cancelled) {
-          scanner.stop().catch(() => {});
-        } else {
-          runningRef.current = true;
+          stream.getTracks().forEach((t) => t.stop());
+          return;
         }
-      })
-      .catch(() => {
+        const video = videoRef.current;
+        if (!video) return;
+        video.srcObject = stream;
+        await video.play();
+        scanLoop();
+      } catch {
         if (!cancelled) {
           setError("Could not access camera. Please check permissions.");
         }
-      });
+      }
+    };
+
+    const scanLoop = () => {
+      if (cancelled) return;
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      if (!video || !canvas || video.readyState < 2) {
+        animFrameId = requestAnimationFrame(scanLoop);
+        return;
+      }
+
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      if (!ctx) {
+        animFrameId = requestAnimationFrame(scanLoop);
+        return;
+      }
+
+      ctx.drawImage(video, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+      scanImageData(imageData)
+        .then((symbols) => {
+          if (cancelled || symbols.length === 0) {
+            if (!cancelled) {
+              animFrameId = requestAnimationFrame(scanLoop);
+            }
+            return;
+          }
+          const first = symbols[0];
+          if (!first) {
+            animFrameId = requestAnimationFrame(scanLoop);
+            return;
+          }
+          const isQr = first.type === ZBarSymbolType.ZBAR_QRCODE;
+          const decoded = first.decode();
+          // Stop camera before calling onScan
+          stream?.getTracks().forEach((t) => t.stop());
+          if (!cancelled) {
+            onScan(decoded, isQr ? "qr" : "barcode");
+          }
+        })
+        .catch(() => {
+          if (!cancelled) {
+            animFrameId = requestAnimationFrame(scanLoop);
+          }
+        });
+    };
+
+    startCamera();
 
     return () => {
       cancelled = true;
-      if (runningRef.current) {
-        runningRef.current = false;
-        scanner.stop().catch(() => {});
-      }
+      cancelAnimationFrame(animFrameId);
+      stream?.getTracks().forEach((t) => t.stop());
     };
   }, [onScan]);
 
@@ -66,7 +107,13 @@ export default function CodeScanner({ onScan, onClose }: CodeScannerProps) {
         </button>
       </div>
       <div className="flex flex-1 items-center justify-center">
-        <div id="code-scanner-region" className="w-full max-w-md" />
+        <video
+          ref={videoRef}
+          className="w-full max-w-md rounded-lg"
+          playsInline
+          muted
+        />
+        <canvas ref={canvasRef} className="hidden" />
       </div>
       {error && (
         <p className="p-4 text-center text-sm text-danger-hover">{error}</p>

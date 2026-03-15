@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react";
-import { Html5Qrcode } from "html5-qrcode";
+import { scanImageData, ZBarSymbolType } from "@undecaf/zbar-wasm";
 import { useAppStore } from "../../store/useAppStore";
 import { useCards } from "../../hooks/useCards";
 import { db } from "../../db/db";
@@ -101,13 +101,21 @@ export default function CardFormModal({ groups }: CardFormModalProps) {
           return;
         }
       }
-      // Fallback to html5-qrcode
-      const scanner = new Html5Qrcode("image-scanner-temp");
-      const result = await scanner.scanFileV2(file, true);
-      const isQr = result?.result?.format?.formatName === "QR_CODE";
-      setCode(result.decodedText);
+      // Fallback to zbar-wasm
+      const bitmap = await createImageBitmap(file);
+      const offscreen = new OffscreenCanvas(bitmap.width, bitmap.height);
+      const ctx = offscreen.getContext("2d");
+      if (!ctx) throw new Error("Canvas context unavailable");
+      ctx.drawImage(bitmap, 0, 0);
+      bitmap.close();
+      const imageData = ctx.getImageData(0, 0, offscreen.width, offscreen.height);
+      const symbols = await scanImageData(imageData);
+      if (symbols.length === 0) throw new Error("No code found");
+      const first = symbols[0];
+      if (!first) throw new Error("No code found");
+      const isQr = first.type === ZBarSymbolType.ZBAR_QRCODE;
+      setCode(first.decode());
       setCodeType(isQr ? "qr" : "barcode");
-      scanner.clear();
     } catch {
       setImageError("No code found in image. Try a clearer photo.");
     }
@@ -390,7 +398,7 @@ export default function CardFormModal({ groups }: CardFormModalProps) {
           onChange={handleImageFile}
           className="hidden"
         />
-        <div id="image-scanner-temp" className="fixed -left-[9999px] -top-[9999px]" />
+
       </div>
     </div>
   );
